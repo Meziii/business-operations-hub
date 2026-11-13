@@ -4,7 +4,7 @@ import hashlib
 import uuid
 from datetime import timedelta
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, status
 from fastapi.responses import FileResponse
@@ -67,8 +67,11 @@ PDF_MAGIC = b"%PDF-"
 # --- Accès ------------------------------------------------------------------------------------
 
 
-def visible(stmt: Select[tuple[ServiceRequest]], user: User) -> Select[tuple[ServiceRequest]]:
-    """Filtre SQL équivalent à rules.can_view (RG-11)."""
+def visible[S: Select[Any]](stmt: S, user: User) -> S:
+    """Filtre SQL équivalent à rules.can_view (RG-11).
+
+    Générique sur le type de requête : SQLAlchemy 2.0 et 2.1 ne paramètrent pas `Select` de la même façon.
+    """
     stmt = stmt.where(ServiceRequest.organization_id == user.organization_id)
     if user.role == Role.AGENT:
         stmt = stmt.where(
@@ -327,7 +330,7 @@ def stats(user: CurrentUser, db: DbSession) -> RequestStats:
         mine = {t.id for t in user.teams}
         teams = [t for t in teams if t.id in mine]
 
-    def count(stmt: Select[tuple[ServiceRequest]]) -> int:
+    def count(stmt: Select[Any]) -> int:
         return db.scalar(select(func.count()).select_from(stmt.subquery())) or 0
 
     loads = []
