@@ -32,6 +32,13 @@ def test_priority_rules():
     assert suggest("Livraison", "Colis en retard.", tier="PREMIUM").priority == "HIGH"
 
 
+def test_explanation_quotes_the_text_as_written():
+    p = suggest("Erreur E42", "Toute la ligne de production est à l'arrêt.", tier="PREMIUM")
+    assert "priorité Critique : « à l'arrêt »" in p.explanation
+    p = suggest("Livraison", "Colis en retard.", tier="PREMIUM")
+    assert "relevée d'un cran (Haute)" in p.explanation
+
+
 def test_unknown_text_goes_to_other_with_low_confidence():
     p = suggest("Bonjour", "Je voulais vous dire merci pour votre accueil au salon.")
     assert p.category_code == "OTHER" and p.overall_confidence <= 0.3

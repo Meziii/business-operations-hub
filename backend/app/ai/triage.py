@@ -204,6 +204,25 @@ PRIORITY_KEYWORDS: dict[PriorityCode, list[str]] = {
 }
 
 
+_ACCENTS = {"a": "aàâä", "c": "cç", "e": "eéèêë", "i": "iîï", "o": "oôö", "u": "uùûü", "y": "yÿ"}
+_PRIORITY_NAMES: dict[PriorityCode, str] = {
+    "LOW": "Basse",
+    "MEDIUM": "Normale",
+    "HIGH": "Haute",
+    "CRITICAL": "Critique",
+}
+
+
+def _as_written(original: str, keyword: str) -> str:
+    """Retrouve un mot-clé normalisé tel qu'il est écrit dans le texte, pour l'explication."""
+    pattern = "".join(
+        f"[{_ACCENTS[ch]}]" if ch in _ACCENTS else r"[\s'’]" if ch in " '" else re.escape(ch)
+        for ch in keyword
+    )
+    match = re.search(pattern, original, re.IGNORECASE)
+    return match.group(0).lower() if match else keyword
+
+
 def _hits(text: str, keywords: list[str]) -> list[str]:
     found = []
     for kw in dict.fromkeys(keywords):
@@ -220,7 +239,8 @@ class MockTriageProvider:
     def suggest(
         self, item: TriageInput, categories: list[CategoryOption], teams: list[TeamOption]
     ) -> TriageProposal:
-        text = normalize(f"{item.title} {item.description}")
+        original = f"{item.title} {item.description}"
+        text = normalize(original)
         available = {c.code: c for c in categories}
         if not available:
             raise TriageError("Aucune catégorie paramétrée.")
@@ -237,7 +257,8 @@ class MockTriageProvider:
             runner_up = len(ranked[1][1]) if len(ranked) > 1 else 0
             margin = len(words) - runner_up
             cat_conf = 0.9 if margin >= 2 else 0.75 if margin == 1 else 0.55
-            reasons.append(f"catégorie « {available[code].name} » : mots repérés {', '.join(words[:4])}")
+            shown = ", ".join(f"« {_as_written(original, w)} »" for w in words[:4])
+            reasons.append(f"catégorie « {available[code].name} » : mots repérés {shown}")
         else:
             code = "OTHER" if "OTHER" in available else next(iter(available))
             cat_conf = 0.3
@@ -256,13 +277,13 @@ class MockTriageProvider:
             if words:
                 priority = level
                 prio_conf = 0.75
-                reasons.append(f"priorité {level} : « {words[0]} »")
+                reasons.append(f"priorité {_PRIORITY_NAMES[level]} : « {_as_written(original, words[0])} »")
                 break
         else:
-            reasons.append("priorité MEDIUM par défaut")
+            reasons.append("priorité Normale par défaut")
         if item.account_tier == "PREMIUM" and priority in ("LOW", "MEDIUM"):
             priority = PRIORITY_ORDER[PRIORITY_ORDER.index(priority) + 1]
-            reasons.append("client PREMIUM : priorité relevée d'un cran")
+            reasons.append(f"client Premium : priorité relevée d'un cran ({_PRIORITY_NAMES[priority]})")
 
         team_codes = {t.code for t in teams}
         team = available[code].default_team_code

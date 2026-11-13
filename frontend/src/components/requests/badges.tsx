@@ -48,9 +48,11 @@ export function SlaIndicator({ state, due, compact = false }: { state: SlaState;
     state === "MET"
       ? "Respecté"
       : state === "BREACHED"
-        ? due && duePassed
-          ? formatRelative(due)
-          : SLA_LABELS.BREACHED
+        ? !due
+          ? "Dépassé" // demande résolue après son échéance : le retard est passé, pas en cours
+          : duePassed
+            ? formatRelative(due)
+            : SLA_LABELS.BREACHED
         : due
           ? formatRelative(due)
           : SLA_LABELS[state];

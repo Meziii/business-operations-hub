@@ -37,11 +37,11 @@ Date : 13/11/2026.
 
 | Contrôle | Résultat |
 |---|---|
-| `pytest` (base PostgreSQL réelle, migrations descendues puis remontées à chaque run) | 57 tests passés (23 en phase 1) |
+| `pytest` (base PostgreSQL réelle, migrations descendues puis remontées à chaque run) | 58 tests passés (23 en phase 1) |
 | `ruff check`, `ruff format --check` | OK |
 | `mypy app` en mode strict | OK, 0 erreur |
 | `npm run lint`, `tsc --noEmit`, `npm run build` | OK |
-| Recette manuelle dans le navigateur (Docker Compose) | Parcours agent : liste, création, proposition, acceptation, historique, SLA. Parcours responsable : charge des équipes, filtres, qualité du tri. Contrôle d'accès : un agent est refusé sur la page qualité |
+| Recette manuelle dans le navigateur (Docker Compose) | Parcours agent de bout en bout : acceptation et correction d'une proposition, affectation, prise en charge, résolution (bloquée sans commentaire), pièce jointe PDF acceptée et faux PDF refusé, création d'une demande Premium critique. Parcours responsable : charge des équipes, filtres par équipe et catégorie, qualité du tri. Direction : lecture seule vérifiée. Agent refusé sur la page qualité |
 
 Ce que couvrent les nouveaux tests : référence séquentielle, permissions de chaque rôle, validation des entrées et isolation entre organisations, acceptation / correction / rejet et caractère définitif de la décision, affectation limitée aux membres de l'équipe, cycle de vie complet avec transitions refusées et commentaires obligatoires, réouverture, historique avant / après, visibilité d'un agent, filtres et indicateurs, règles d'état SLA, pièces jointes (type vérifié sur le contenu, taille, empreinte), repli quand le fournisseur échoue ou invente un code, règles de priorité dont le relèvement Premium, injection d'instruction, reproductibilité de l'évaluation, cohérence et crédibilité du jeu de démonstration.
 
@@ -54,6 +54,8 @@ Ce que couvrent les nouveaux tests : référence séquentielle, permissions de c
 | « Toute la ligne de production est à l'arrêt » proposé en priorité Haute au lieu de Critique | Règle élargie à « à l'arrêt » (cas observé en recette, pas tiré du split `test` ; scores inchangés) et test ajouté |
 | Jeu de démonstration : toutes les demandes ouvertes routées en retard dès le chargement, demandes « à classer » vieilles de près de 3 jours | Scénario revu (demandes du jour à classer, travail en cours récent, quelques dossiers oubliés) et test de crédibilité ajouté |
 | Filtre par catégorie prévu par US-102 présent dans l'API mais absent de l'écran | Filtre ajouté et testé côté API |
+| Pièces jointes impossibles dans Docker (« Envoi impossible ») : l'utilisateur non privilégié du conteneur ne pouvait pas créer le dossier de stockage. Les tests, lancés hors conteneur, ne le voyaient pas | Dossier créé dans l'image avec les bons droits et monté sur un volume `uploads` (fichiers conservés entre deux reconstructions) |
+| Explication du tri affichant les mots sans accents (« a l'arret ») et les codes techniques (« CRITICAL ») | Mots cités tels qu'écrits par le client, priorités en français ; test ajouté |
 
 ## Décisions prises
 
