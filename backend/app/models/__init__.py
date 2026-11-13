@@ -1,4 +1,42 @@
 from app.models.base import Base
 from app.models.core import AuditLog, Organization, Role, Team, User, user_teams
+from app.models.requests import (
+    Account,
+    AccountTier,
+    AccountType,
+    AiSuggestion,
+    Attachment,
+    Category,
+    Channel,
+    Comment,
+    Decision,
+    Priority,
+    RequestEvent,
+    ServiceRequest,
+    SlaPolicy,
+    Status,
+)
 
-__all__ = ["AuditLog", "Base", "Organization", "Role", "Team", "User", "user_teams"]
+__all__ = [
+    "Account",
+    "AccountTier",
+    "AccountType",
+    "AiSuggestion",
+    "Attachment",
+    "AuditLog",
+    "Base",
+    "Category",
+    "Channel",
+    "Comment",
+    "Decision",
+    "Organization",
+    "Priority",
+    "RequestEvent",
+    "Role",
+    "ServiceRequest",
+    "SlaPolicy",
+    "Status",
+    "Team",
+    "User",
+    "user_teams",
+]

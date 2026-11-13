@@ -1,5 +1,7 @@
 # Modèle de données (proposition v0)
 
+> **État réel au 13/11/2026.** Tables créées : migration `0001` (organisations, équipes, utilisateurs, journal d'audit) et migration `0002` (`accounts`, `categories`, `sla_policies`, `requests`, `request_events`, `comments`, `attachments`, `ai_suggestions`). Écarts avec la proposition ci-dessous : pas de table `CONTACT` (le client est porté par `accounts`, avec un niveau Standard ou Premium) ; la politique SLA est rattachée à la **priorité** et les échéances sont copiées sur la demande ; `ai_suggestions` est générique (`target_type`, `kind`) pour servir aussi aux modules suivants. Les autres entités arrivent avec leur module.
+
 Toutes les tables métier portent `organization_id`, `created_at`, `updated_at`. Les données de démonstration portent `is_synthetic = true`.
 
 ```mermaid

@@ -4,6 +4,8 @@ import os
 
 os.environ.setdefault("DATABASE_URL", "postgresql+psycopg://boh:boh@localhost:5434/boh_test")
 os.environ.setdefault("JWT_SECRET", "test-secret-not-for-production-0123456789")
+os.environ["AI_PROVIDER"] = "mock"
+os.environ.setdefault("STORAGE_DIR", str(__import__("tempfile").mkdtemp(prefix="boh-test-")))
 
 from collections.abc import Iterator  # noqa: E402
 from pathlib import Path  # noqa: E402
@@ -38,7 +40,11 @@ def clean_tables() -> Iterator[None]:
     yield
     with engine.begin() as conn:
         conn.execute(
-            text("TRUNCATE audit_log, user_teams, users, teams, organizations RESTART IDENTITY CASCADE")
+            text(
+                "TRUNCATE ai_suggestions, attachments, comments, request_events, requests, sla_policies, "
+                "categories, accounts, audit_log, user_teams, users, teams, organizations "
+                "RESTART IDENTITY CASCADE"
+            )
         )
 
 

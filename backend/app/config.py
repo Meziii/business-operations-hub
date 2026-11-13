@@ -16,6 +16,10 @@ class Settings(BaseSettings):
     jwt_expire_minutes: int = 480
     cookie_secure: bool = False
     ai_provider: str = "mock"
+    ai_model: str = "claude-opus-5-5"
+    anthropic_api_key: str = ""
+    storage_dir: str = "storage"
+    max_upload_mb: int = 10
     demo_password: str = ""
     demo_profile: str = "generic"
 

@@ -9,26 +9,39 @@ import { useSession } from "@/components/layout/session";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader } from "@/components/ui/card";
 import { api } from "@/lib/api";
-import type { Health } from "@/lib/types";
+import type { Health, RequestStats } from "@/lib/types";
 
-const PHASE: Record<string, number> = { "/requests": 2, "/documents": 3, "/assistant": 4, "/analytics": 5 };
+/** Phase de livraison des modules pas encore disponibles. */
+const PLANNED: Record<string, number> = { "/documents": 3, "/assistant": 4, "/analytics": 5 };
+
+function requestsSummary(stats: RequestStats | null, failed: boolean): string {
+  if (failed) return "Indicateurs indisponibles";
+  if (!stats) return "…";
+  const parts = [`${stats.open} ouverte${stats.open > 1 ? "s" : ""}`];
+  if (stats.overdue) parts.push(`${stats.overdue} en retard`);
+  if (stats.to_classify) parts.push(`${stats.to_classify} à classer`);
+  return parts.join(" · ");
+}
 
 export default function OverviewPage() {
   const me = useSession();
   const [health, setHealth] = useState<Health | null>(null);
   const [healthError, setHealthError] = useState(false);
+  const [stats, setStats] = useState<RequestStats | null>(null);
+  const [statsError, setStatsError] = useState(false);
 
   useEffect(() => {
     api<Health>("/api/health").then(setHealth).catch(() => setHealthError(true));
+    api<RequestStats>("/api/requests/stats").then(setStats).catch(() => setStatsError(true));
   }, []);
 
-  const modules = NAV.filter((i) => i.href in PHASE);
+  const modules = NAV.filter((i) => i.href === "/requests" || i.href in PLANNED);
 
   return (
     <>
       <PageHeader
         title={`Bonjour ${me.full_name.split(" ")[0]}`}
-        description="Les indicateurs apparaîtront ici dès que les modules produiront des données."
+        description="Où en sont les modules, sur votre périmètre."
       />
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -40,7 +53,9 @@ export default function OverviewPage() {
               </div>
               <div className="flex-1">
                 <p className="font-semibold">{label}</p>
-                <p className="text-muted">Prévu en phase {PHASE[href]}</p>
+                <p className={stats?.overdue && href === "/requests" ? "text-danger" : "text-muted"}>
+                  {href === "/requests" ? requestsSummary(stats, statsError) : `Prévu en phase ${PLANNED[href]}`}
+                </p>
               </div>
               <ArrowRight className="size-4 text-muted group-hover:text-navy-700" aria-hidden />
             </Card>
@@ -65,8 +80,8 @@ export default function OverviewPage() {
             <dt className="text-muted">Fournisseur d&apos;IA</dt>
             <dd className="mt-1">
               {health ? (
-                <Badge tone={health.ai_provider === "mock" ? "warning" : "navy"}>
-                  {health.ai_provider === "mock" ? "Mode démonstration" : health.ai_provider}
+                <Badge tone={health.ai_provider.startsWith("mock") ? "warning" : "navy"}>
+                  {health.ai_provider.startsWith("mock") ? "Mode démonstration (règles)" : health.ai_provider}
                 </Badge>
               ) : (
                 "…"

@@ -15,6 +15,7 @@ from app.db import SessionLocal
 from app.demo_profiles import PROFILES
 from app.models import Organization, Team, User
 from app.security import hash_password
+from app.seed_requests import seed_requests
 
 
 def main() -> int:
@@ -27,8 +28,11 @@ def main() -> int:
         print(f"DEMO_PROFILE inconnu : {settings.demo_profile}. Choix : {', '.join(PROFILES)}.")
         return 1
     with SessionLocal() as db:
-        if db.scalar(select(Organization).where(Organization.is_synthetic.is_(True))):
-            print("Organisation de démonstration déjà présente.")
+        existing = db.scalar(select(Organization).where(Organization.is_synthetic.is_(True)))
+        if existing:
+            n = seed_requests(db, existing)
+            db.commit()
+            print(f"Organisation de démonstration déjà présente. Demandes ajoutées : {n}.")
             return 0
         org = Organization(name=profile.organization, is_synthetic=True)
         db.add(org)
@@ -48,8 +52,13 @@ def main() -> int:
                     teams=[teams[c] for c in codes],
                 )
             )
+        db.flush()
+        n = seed_requests(db, org)
         db.commit()
-        print(f"{profile.organization} : {len(profile.teams)} équipes, {len(profile.users)} utilisateurs.")
+        print(
+            f"{profile.organization} : {len(profile.teams)} équipes, {len(profile.users)} utilisateurs, "
+            f"{n} demandes."
+        )
     return 0
 
 

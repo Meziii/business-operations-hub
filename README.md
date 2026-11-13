@@ -19,18 +19,30 @@ Je l'ai lancé parce que j'aime ce travail : partir d'un processus qui fait perd
 | Module | Rôle | État |
 |---|---|---|
 | Socle | Connexion, rôles, équipes, journal d'audit, navigation commune | **Livré (phase 1)** |
-| 1. Smart Request Management | Centraliser, prioriser et suivre les demandes ; suggestions IA validées par un humain | Phase 2 |
+| 1. Smart Request Management | Centraliser, prioriser et suivre les demandes ; suggestions IA validées par un humain | **Livré (phase 2)** |
 | 2. Intelligent Document Processing | Extraire et contrôler factures et demandes de garantie | Phase 3 |
 | 3. Enterprise Knowledge Assistant | Répondre depuis la documentation interne, avec sources | Phase 4 |
 | 4. Business Intelligence Cockpit | KPI consolidés, dashboard intégré et rapport Power BI | Phase 5 |
 
-## Aperçu (phase 1)
+## Aperçu
 
-| Vue d'ensemble | Administration |
+| Demandes : file, indicateurs et charge des équipes | Proposition de tri à valider |
 | --- | --- |
-| ![Vue d'ensemble : accès aux modules et état de la plateforme vérifié en direct](docs/screenshots/vue-ensemble.png) | ![Administration : utilisateurs, rôles, équipes et journal d'audit](docs/screenshots/administration.png) |
+| ![Liste des demandes : demandes ouvertes, en retard, à classer, charge et retards par équipe](docs/screenshots/demandes-liste.jpg) | ![Détail d'une demande : catégorie, priorité et équipe proposées avec confiance et explication, à accepter, corriger ou rejeter](docs/screenshots/demandes-proposition-tri.jpg) |
 
-Données de démonstration synthétiques. Les modules métier arrivent à partir de la phase 2.
+| Qualité du tri, mesurée sur un jeu de test | Vue d'ensemble |
+| --- | --- |
+| ![Qualité du tri : exactitude par champ sur 30 demandes de test, erreurs détaillées, décisions des équipes](docs/screenshots/demandes-qualite-tri.jpg) | ![Vue d'ensemble : état des modules et de la plateforme vérifié en direct](docs/screenshots/vue-ensemble.jpg) |
+
+Données de démonstration synthétiques. L'écran d'administration (utilisateurs, rôles, équipes, journal d'audit) est visible dans [`docs/screenshots/administration.png`](docs/screenshots/administration.png).
+
+## Module 1 : gestion des demandes
+
+- **Parcours complet** : saisie, proposition de tri, classement, affectation à un membre de l'équipe, traitement, attente d'informations, résolution, clôture, réouverture. Transitions contrôlées par 12 [règles de gestion](docs/03-processes/request-handling.md) appliquées côté API.
+- **Délais (SLA)** : échéances de prise en charge et de résolution calculées selon la priorité, demandes en retard signalées, charge et retards par équipe pour le responsable.
+- **Traçabilité** : historique de chaque modification avec auteur, valeur avant et après ; commentaires internes ; pièces jointes PDF vérifiées.
+- **IA qui propose, humain qui décide** : catégorie, priorité et équipe proposées avec explication et confiance par champ ; l'agent accepte, corrige ou rejette, et sa décision est tracée. Sans clé API, un mode démonstration à base de règles prend le relais ; il sert aussi de repli si le modèle échoue.
+- **Qualité mesurée, pas affirmée** : sur 30 demandes de test jamais utilisées pour régler les règles, le mode démonstration trie entièrement bien **47 %** des demandes, contre 90 % sur les exemples qui ont servi à l'écrire. Le modèle de langage sera mesuré sur le même jeu avant d'annoncer un chiffre. Détails : [évaluation du tri](docs/07-ai-governance/triage-evaluation.md).
 
 ## Architecture
 
@@ -56,7 +68,7 @@ docker compose up --build
 - Application : http://localhost:3000
 - Documentation de l'API : http://localhost:8000/api/docs
 
-Au premier démarrage, l'API applique les migrations et crée l'organisation de démonstration du profil `DEMO_PROFILE` (7 utilisateurs fictifs, 4 équipes). Les comptes sont listés dans [`backend/app/seed.py`](backend/app/seed.py) ; leur mot de passe est la valeur `DEMO_PASSWORD` du fichier `.env`.
+Au premier démarrage, l'API applique les migrations et crée l'organisation de démonstration du profil `DEMO_PROFILE` (7 utilisateurs fictifs, 4 équipes, 10 clients et partenaires, 60 demandes à différents stades). Les comptes sont listés dans [`backend/app/demo_profiles.py`](backend/app/demo_profiles.py) ; leur mot de passe est la valeur `DEMO_PASSWORD` du fichier `.env`.
 
 ### Développement sans conteneur pour l'API et le frontend
 
@@ -91,10 +103,15 @@ cd frontend && npm run lint && npx tsc --noEmit
 | [Backlog](docs/08-project-management/backlog.md) | Épics et user stories priorisées |
 | [Roadmap](docs/08-project-management/roadmap.md) | Phases, durées, ordre de réalisation |
 | [Definition of Done](docs/08-project-management/definition-of-done.md) | Critères de fin d'une story |
+| [Traitement des demandes](docs/03-processes/request-handling.md) | Processus AS-IS / TO-BE, cycle de vie, règles de gestion, SLA |
+| [Évaluation du tri assisté](docs/07-ai-governance/triage-evaluation.md) | Jeu de test, résultats, garde-fous, limites |
 | [Bilan phase 1](docs/08-project-management/phase-1-report.md) | Réalisé, tests, décisions, suite |
+| [Bilan phase 2](docs/08-project-management/phase-2-report.md) | Module Demandes : réalisé, tests, décisions, suite |
 
-## Limites connues (phase 1)
+## Limites connues
 
 - Pas encore de limitation des tentatives de connexion.
-- Les types TypeScript de l'API sont écrits à la main ; ils seront générés depuis l'OpenAPI en phase 2.
-- Pas encore de tests end-to-end (Playwright) : ils arrivent avec le premier parcours métier, en phase 2.
+- Le tri par modèle de langage (`AI_PROVIDER=claude`) est branché mais pas encore évalué : seul le mode démonstration a des résultats mesurés.
+- Délais SLA en temps calendaire, sans calendrier ouvré.
+- Les demandes sont saisies par un collaborateur : pas encore de réception automatique des e-mails.
+- Types TypeScript de l'API écrits à la main et pas encore de tests end-to-end (Playwright) : le parcours a été vérifié manuellement dans le navigateur. Voir le [bilan de phase 2](docs/08-project-management/phase-2-report.md).
