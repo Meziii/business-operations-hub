@@ -24,6 +24,14 @@ Je l'ai lancé parce que j'aime ce travail : partir d'un processus qui fait perd
 | 3. Enterprise Knowledge Assistant | Répondre depuis la documentation interne, avec sources | Phase 4 |
 | 4. Business Intelligence Cockpit | KPI consolidés, dashboard intégré et rapport Power BI | Phase 5 |
 
+## Aperçu (phase 1)
+
+| Vue d'ensemble | Administration |
+| --- | --- |
+| ![Vue d'ensemble : accès aux modules et état de la plateforme vérifié en direct](docs/screenshots/vue-ensemble.png) | ![Administration : utilisateurs, rôles, équipes et journal d'audit](docs/screenshots/administration.png) |
+
+Données de démonstration synthétiques. Les modules métier arrivent à partir de la phase 2.
+
 ## Architecture
 
 Monolithe modulaire : une API FastAPI découpée en modules, un frontend Next.js, une base PostgreSQL avec pgvector. Détails et justifications : [architecture cible](docs/04-architecture/target-architecture.md) et [ADR](docs/04-architecture/adr/README.md).
