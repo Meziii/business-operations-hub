@@ -66,7 +66,18 @@ def test_seed_builds_a_consistent_demo(db, monkeypatch):
         db.execute(select(ServiceRequest.status, func.count()).group_by(ServiceRequest.status)).all()
     )
     assert statuses[Status.NEW] == 8 and len(statuses) >= 5
-    assert db.scalar(select(func.count()).where(AiSuggestion.decision == Decision.PENDING)) == 8
+    from app.modules.requests.service import TRIAGE_KIND
+
+    pending_triage = select(func.count()).where(
+        AiSuggestion.decision == Decision.PENDING, AiSuggestion.kind == TRIAGE_KIND
+    )
+    assert db.scalar(pending_triage) == 8
+    # Le module Documents est aussi chargé : documents dans tous les états.
+    from app.models import DocStatus, Document
+
+    docs = {s: n for s, n in db.execute(select(Document.status, func.count()).group_by(Document.status))}
+    assert sum(docs.values()) == 10
+    assert docs.get(DocStatus.VALIDATED, 0) >= 1 and docs.get(DocStatus.REJECTED, 0) >= 1
     # Démo crédible au moment du chargement : quelques retards, pas un mur de rouge.
     now = service.now()
     routed = [r for r in db.scalars(select(ServiceRequest)) if r.status in OPEN_STATUSES and r.team_id]

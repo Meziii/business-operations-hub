@@ -176,6 +176,18 @@ class RequestDetail(RequestRow):
     attachments: list[AttachmentOut]
     events: list[EventOut]
     suggestion: SuggestionOut | None
+    documents: list["LinkedDocument"]
+
+
+class LinkedDocument(BaseModel):
+    """Document traité rattaché à la demande (module 2, US-306)."""
+
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
+    reference: str
+    doc_type: str
+    status: str
+    filename: str
 
 
 class DecisionIn(BaseModel):

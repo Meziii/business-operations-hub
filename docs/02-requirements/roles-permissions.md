@@ -1,6 +1,6 @@
 # Matrice des rôles et permissions
 
-État au 13/11/2026 (phase 2 : socle et module 1). Les modules 2 à 4 seront ajoutés à leur livraison. Chaque ligne « livrée » est couverte par un test automatisé (`backend/tests/`).
+État au 13/11/2026 (phase 3 : socle, module 1 et module 2). Les modules 3 et 4 seront ajoutés à leur livraison. Chaque ligne « livrée » est couverte par un test automatisé (`backend/tests/`).
 
 | Action | ADMIN | MANAGER | AGENT | VIEWER | Statut | Test |
 |---|:-:|:-:|:-:|:-:|---|---|
@@ -23,6 +23,16 @@
 | Consulter la qualité du tri IA | ✔ | ✔ | ✘ | ✘ | Livrée | `test_quality_report_permissions_and_content` |
 | Modifier les politiques SLA | ✔ | ✘ | ✘ | ✘ | Livrée | `test_sla_update_is_admin_only_and_audited` |
 | Modifier une demande clôturée | ✘ | ✘ | ✘ | ✘ | Livrée | `test_full_lifecycle_with_controlled_transitions` |
+
+### Module 2 : documents
+
+| Action | ADMIN | MANAGER | AGENT | VIEWER | Statut | Test |
+|---|:-:|:-:|:-:|:-:|---|---|
+| Consulter les documents, leur détail et le PDF | ✔ | ✔ | ✔ | ✔ | Livrée | `test_viewer_reads_but_cannot_act` |
+| Importer un PDF (facture, garantie) | ✔ | ✔ | ✔ | ✘ | Livrée | `test_upload_permissions` |
+| Corriger les champs, valider ou rejeter | ✔ | ✔ | ✔ | ✘ | Livrée | `test_viewer_reads_but_cannot_act` |
+| Rattacher un document à une demande | ✔ | ✔ | ✔ | ✘ | Livrée | `test_link_to_request_is_traced_on_both_sides` |
+| Consulter la qualité de l'extraction | ✔ | ✔ | ✘ | ✘ | Livrée | `test_quality_report_permissions` |
 
 Règles transverses (livrées) :
 - Toutes les lectures et écritures sont limitées à l'organisation de l'utilisateur (`test_organizations_are_isolated`).

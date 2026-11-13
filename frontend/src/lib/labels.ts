@@ -60,6 +60,29 @@ export const FIELD_LABELS: Record<string, string> = {
   description: "Description",
 };
 
+export const DOC_TYPE_LABELS: Record<string, string> = {
+  INVOICE: "Facture",
+  WARRANTY_CLAIM: "Demande de garantie",
+};
+
+export const DOC_STATUS_LABELS: Record<string, string> = {
+  TO_REVIEW: "À vérifier",
+  VALIDATED: "Validé",
+  REJECTED: "Rejeté",
+};
+
+/** Message court et humain pour chaque code d'anomalie (le détail vient de l'API). */
+export const ANOMALY_LABELS: Record<string, string> = {
+  MISSING_FIELD: "Champ obligatoire manquant",
+  DUPLICATE: "Doublon probable",
+  INCONSISTENT_TOTAL: "Total incohérent",
+  UNUSUAL_VAT_RATE: "Taux de TVA inhabituel",
+  DUE_BEFORE_INVOICE: "Échéance avant la facture",
+  DATE_IN_FUTURE: "Date dans le futur",
+  FAILURE_BEFORE_PURCHASE: "Panne avant l'achat",
+  OUT_OF_WARRANTY: "Hors garantie",
+};
+
 const dateTime = new Intl.DateTimeFormat("fr-FR", { dateStyle: "short", timeStyle: "short" });
 const relative = new Intl.RelativeTimeFormat("fr-FR", { numeric: "auto" });
 

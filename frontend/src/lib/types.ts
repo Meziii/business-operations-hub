@@ -181,6 +181,7 @@ export interface RequestDetail extends RequestRow {
   attachments: Attachment[];
   events: RequestEvent[];
   suggestion: Suggestion | null;
+  documents: LinkedDocument[];
 }
 
 export interface RequestStats {
@@ -199,6 +200,127 @@ export interface FieldScore {
   correct: number;
   total: number;
   accuracy: number;
+}
+
+// --- Module 2 : documents ---------------------------------------------------------------
+
+export type DocType = "INVOICE" | "WARRANTY_CLAIM";
+export type DocStatus = "TO_REVIEW" | "VALIDATED" | "REJECTED";
+
+export interface DocumentRow {
+  id: string;
+  reference: string;
+  doc_type: DocType;
+  status: DocStatus;
+  filename: string;
+  summary: string;
+  amount: number | null;
+  blocking: number;
+  warnings: number;
+  ocr_used: boolean;
+  request: { id: string; reference: string; title: string } | null;
+  uploaded_by: UserRef | null;
+  created_at: string;
+}
+
+export interface DocumentPage {
+  items: DocumentRow[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export interface ExtractedField {
+  name: string;
+  label: string;
+  kind: "text" | "date" | "amount";
+  required: boolean;
+  value: string | number | null;
+  proposed: string | number | null;
+  confidence: number;
+  corrected: boolean;
+}
+
+export interface DocAnomaly {
+  code: string;
+  severity: "BLOCKING" | "WARNING";
+  field: string | null;
+  message: string;
+}
+
+export interface DocVersion {
+  version: number;
+  source: "AI" | "HUMAN";
+  provider: string;
+  created_at: string;
+  created_by: UserRef | null;
+  changed: string[];
+}
+
+export interface DocumentDetail extends DocumentRow {
+  size_bytes: number;
+  page_count: number;
+  ocr_pages: number;
+  ocr_confidence: number | null;
+  text: string;
+  text_error: string | null;
+  provider: string;
+  fields: ExtractedField[];
+  anomalies: DocAnomaly[];
+  versions: DocVersion[];
+  decision: Decision | null;
+  decided_by: UserRef | null;
+  decided_at: string | null;
+  rejection_reason: string | null;
+  can_edit: boolean;
+}
+
+export interface DocumentStats {
+  to_review: number;
+  with_blocking: number;
+  validated: number;
+  rejected: number;
+}
+
+export interface LinkedDocument {
+  id: string;
+  reference: string;
+  doc_type: DocType;
+  status: DocStatus;
+  filename: string;
+}
+
+export interface DocFieldScore {
+  field: string;
+  label: string;
+  correct: number;
+  total: number;
+  accuracy: number;
+}
+
+export interface DocQuality {
+  dev_documents_fully_correct: number;
+  offline: {
+    provider: string;
+    split: string;
+    size: number;
+    evaluated: number;
+    skipped_scans: number;
+    fields: DocFieldScore[];
+    documents_fully_correct: number;
+    text_accuracy: number | null;
+    scan_accuracy: number | null;
+    by_layout: Record<string, number>;
+    anomalies: { expected: number; detected: number; false_alarms: number };
+    errors: Record<string, string>[];
+  };
+  live: {
+    decided: number;
+    accepted: number;
+    modified: number;
+    rejected: number;
+    field_kept: Record<string, number>;
+  };
 }
 
 export interface Quality {

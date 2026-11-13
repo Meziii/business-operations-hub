@@ -14,6 +14,7 @@ import { Label, Select, Textarea } from "@/components/ui/input";
 import { ApiError, api } from "@/lib/api";
 import {
   CHANNEL_LABELS,
+  DOC_TYPE_LABELS,
   PRIORITIES,
   PRIORITY_LABELS,
   SLA_LABELS,
@@ -115,6 +116,22 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
               {req.closed_at && <Row label="Clôturée">{formatDateTime(req.closed_at)}</Row>}
             </dl>
           </Card>
+          {req.documents.length > 0 && (
+            <Card>
+              <CardHeader title="Documents" description="Factures et garanties rattachées à cette demande." />
+              <ul className="space-y-2 px-5 py-4">
+                {req.documents.map((d) => (
+                  <li key={d.id} className="flex items-center gap-2">
+                    <FileText className="size-4 shrink-0 text-muted" aria-hidden />
+                    <Link href={`/documents/${d.id}`} className="font-medium text-navy-700 hover:underline">
+                      {d.reference}
+                    </Link>
+                    <span className="truncate text-muted">{DOC_TYPE_LABELS[d.doc_type]}</span>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          )}
         </div>
       </div>
     </>

@@ -1,5 +1,6 @@
 from app.models.base import Base
 from app.models.core import AuditLog, Organization, Role, Team, User, user_teams
+from app.models.documents import Anomaly, DocStatus, DocType, Document, Extraction, ExtractionSource
 from app.models.requests import (
     Account,
     AccountTier,
@@ -22,6 +23,7 @@ __all__ = [
     "AccountTier",
     "AccountType",
     "AiSuggestion",
+    "Anomaly",
     "Attachment",
     "AuditLog",
     "Base",
@@ -29,6 +31,11 @@ __all__ = [
     "Channel",
     "Comment",
     "Decision",
+    "DocStatus",
+    "DocType",
+    "Document",
+    "Extraction",
+    "ExtractionSource",
     "Organization",
     "Priority",
     "RequestEvent",

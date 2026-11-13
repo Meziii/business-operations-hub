@@ -24,6 +24,7 @@ from app.models import (
     Category,
     Comment,
     Decision,
+    Document,
     Priority,
     RequestEvent,
     Role,
@@ -40,6 +41,7 @@ from app.modules.requests.schemas import (
     CommentIn,
     CommentOut,
     DecisionIn,
+    LinkedDocument,
     LiveQuality,
     QualityOut,
     ReferenceData,
@@ -153,6 +155,12 @@ def to_detail(db: Session, req: ServiceRequest, user: User) -> RequestDetail:
         attachments=list(attachments),
         events=list(events),
         suggestion=service.latest_suggestion(db, req.id),
+        documents=[
+            LinkedDocument.model_validate(d)
+            for d in db.scalars(
+                select(Document).where(Document.request_id == req.id).order_by(Document.created_at)
+            )
+        ],
     )
 
 

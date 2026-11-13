@@ -15,6 +15,7 @@ from app.db import SessionLocal
 from app.demo_profiles import PROFILES
 from app.models import Organization, Team, User
 from app.security import hash_password
+from app.seed_documents import seed_documents
 from app.seed_requests import seed_requests
 
 
@@ -31,8 +32,9 @@ def main() -> int:
         existing = db.scalar(select(Organization).where(Organization.is_synthetic.is_(True)))
         if existing:
             n = seed_requests(db, existing)
+            d = seed_documents(db, existing)
             db.commit()
-            print(f"Organisation de démonstration déjà présente. Demandes ajoutées : {n}.")
+            print(f"Organisation de démonstration déjà présente. Demandes ajoutées : {n}, documents : {d}.")
             return 0
         org = Organization(name=profile.organization, is_synthetic=True)
         db.add(org)
@@ -54,10 +56,11 @@ def main() -> int:
             )
         db.flush()
         n = seed_requests(db, org)
+        d = seed_documents(db, org)
         db.commit()
         print(
             f"{profile.organization} : {len(profile.teams)} équipes, {len(profile.users)} utilisateurs, "
-            f"{n} demandes."
+            f"{n} demandes, {d} documents."
         )
     return 0
 
