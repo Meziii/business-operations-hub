@@ -106,8 +106,13 @@ def test_controls_rules():
 def test_rules_read_every_dev_text_document():
     """Les règles ont été écrites sur le split dev : elles doivent y lire tous les PDF texte."""
     report = evaluate(MockDocumentExtractor(), "dev")
+    # text_accuracy == 1.0 veut déjà dire que chaque champ de chaque PDF texte du dev est lu juste
+    # (c'est la moyenne des réussites champ par champ sur les documents texte).
+    # On ne vérifie pas report.fields : cette exactitude par champ agrège aussi les scans OCR, que
+    # l'on ne garantit pas à 100 % (cf. évaluation de l'extraction) ; elle dépendrait alors de la
+    # présence de Tesseract sur la machine.
     assert report.text_accuracy == 1.0
-    assert all(f.accuracy == 1.0 for f in report.fields)
+    assert report.fields, "le rapport doit couvrir des champs"
 
 
 # --- Dépôt et lecture -------------------------------------------------------------------------------
